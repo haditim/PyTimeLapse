@@ -5,6 +5,7 @@ __author__ = "M. Hadi Timachi"
 __license__ = "GPLv2"
 
 import os
+import glob
 import concurrent.futures
 import warnings
 
@@ -123,9 +124,7 @@ if __name__ == "__main__":
     parser.add_argument('-sc', '--stroke_color', type=str, metavar='', default='white', help='Stroke fill color for text warermark, default: white')
     parser.add_argument('-d', '--deshake', action='store_true', help='Deshake photos')
     args = parser.parse_args()
-
     kw = vars(args)
-    
     
     def init_worker(file):
         frame = Frame(file, **kw)
@@ -139,8 +138,7 @@ if __name__ == "__main__":
         if kw['resize']: frame.resize(kw['width'], kw['height'], keep_ratio=kw['keep_ratio'])
         if kw['watermark']:
             if kw['watermark_location'] and kw['text']:
-                print(
-                    'you passed both an image and a text for watermark. I\'ll take the former')
+                print('you passed both an image and a text for watermark. I\'ll take the former')
                 kw['text'] = ''
         if kw['watermark_location']:
             watermark_image = Image.open(kw['watermark_location'])

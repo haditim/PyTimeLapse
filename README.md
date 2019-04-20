@@ -1,5 +1,9 @@
 # PyTimeLapse
-Processes several photos to a timelapse video.
+Processes several photos to a timelapse video. For now it creates a subfolder in the input directory with processed images according to the following functions:
+## resize
+## watermark
+## deshake
+
 # Sample usage
 ```
 python3 PyTimaLapse.py --help
