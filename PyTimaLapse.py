@@ -97,7 +97,7 @@ def return_files(input_dir, pattern='.jpg'):
     """ Returns photos based on an extension pattern. """
     if os.path.exists(input_dir):
         try:
-            files = glob.glob(os.path.dirname(input_dir)+'*'+pattern)
+            files = glob.glob(os.path.join(os.path.dirname(input_dir),'')+'*'+pattern)
         except Exception as e:
             print('There was an error in getting photos', e)
         files.sort()
@@ -123,6 +123,7 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--stroke', action='store_true', help='Add a stroke around the watermark text.')
     parser.add_argument('-sc', '--stroke_color', type=str, metavar='', default='white', help='Stroke fill color for text warermark, default: white')
     parser.add_argument('-d', '--deshake', action='store_true', help='Deshake photos')
+    parser.add_argument('-fr', '--frame_rate', type=int, metavar='', default=40, help='Frame rate for output video, default: 40')
     args = parser.parse_args()
     kw = vars(args)
     
@@ -159,8 +160,8 @@ if __name__ == "__main__":
     
     files = return_files(kw['input'])
     base_frame = Frame(files[0], **kw)
-    print('Initializing files...')
-    # result = (init_worker(file) for file in files)
+    print_stmt = 'Initializing {} files and calculating shift for deshaking...'.format(len(files)) if kw['deshake'] else 'Initializing {} files...'.format(len(files))
+    print(print_stmt) 
     with concurrent.futures.ProcessPoolExecutor() as pool:
         result = list(tqdm.tqdm(pool.map(init_worker, files), total = len(files)))
     print('Done initializing files')
@@ -174,4 +175,8 @@ if __name__ == "__main__":
     # result = [process_worker(file) for file in result]
     with concurrent.futures.ProcessPoolExecutor() as pool:
         results = list(tqdm.tqdm(pool.map(process_worker, result), total = len(files)))
+
+    os.system('ffmpeg -r {} -pattern_type glob -i \'{}*.jpg\' -c:v copy -pix_fmt yuv420p {}'.format(kw['frame_rate'], 
+        os.path.join(os.path.dirname(files[0]), kw['output'],''), 
+        os.path.join(os.path.dirname(files[0]), kw['output'], 'output.mp4')))
     print('All done!')
